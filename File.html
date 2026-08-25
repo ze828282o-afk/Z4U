@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>ملف مشارك | Ziyad 4 Upload</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050706; --glass: rgba(18,26,23,0.55); --glass-line: rgba(57,255,176,0.18);
+  --accent:#39ffb0; --accent-dim:#1c8f5f; --accent-soft: rgba(57,255,176,0.12);
+  --danger:#ff5c5c; --text:#e7f3ee; --muted:#6f8079;
+  --mono:'JetBrains Mono', monospace; --arabic:'IBM Plex Sans Arabic', sans-serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh;
+  background:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(57,255,176,0.07), transparent 60%),
+    var(--bg);
+  background-size: 34px 34px, 34px 34px, 100% 100%, 100%;
+  color: var(--text); font-family: var(--arabic);
+}
+.wrap{ max-width:480px; margin:0 auto; padding:40px 18px 70px; }
+.hidden{ display:none !important; }
+
+.back{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family: var(--mono); font-size:12px; color: var(--muted);
+  text-decoration:none; margin-bottom:24px;
+}
+.back:hover{ color: var(--accent); }
+
+.file-hero{
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:16px;
+  padding:30px 20px; text-align:center; margin-bottom:20px;
+}
+.file-hero .icon{ font-size:44px; margin-bottom:14px; }
+.file-hero .fname{ font-size:17px; font-weight:600; word-break:break-word; margin-bottom:6px; }
+.file-hero .fsize{ font-family: var(--mono); font-size:12px; color: var(--muted); margin-bottom:22px; }
+.download-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; font-family: var(--arabic); font-weight:600; font-size:15px;
+  color:#0a0e0c; background: var(--accent); border:none; border-radius:10px;
+  padding:14px 18px; cursor:pointer; text-decoration:none;
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.download-btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 24px rgba(57,255,176,0.25); }
+
+.owner-card{
+  display:flex; align-items:center; gap:12px;
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:12px;
+  padding:14px 16px; margin-bottom:10px;
+}
+.owner-avatar{ width:42px; height:42px; border-radius:50%; border:1px solid var(--accent-dim); object-fit:cover; background:var(--accent-soft); }
+.owner-info{ flex:1; min-width:0; }
+.owner-name{ font-size:14px; font-weight:600; }
+.owner-sub{ font-family: var(--mono); font-size:11px; color: var(--muted); margin-top:2px; }
+
+.section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:24px 0 10px; }
+
+.file-item{
+  display:flex; align-items:center; gap:12px;
+  background: var(--glass); border:1px solid var(--glass-line); border-inline-start:2px solid var(--accent-dim);
+  border-radius:10px; padding:12px 14px; margin-bottom:8px; text-decoration:none; color: var(--text);
+  transition: border-color .2s ease;
+}
+.file-item:hover{ border-inline-start-color: var(--accent); }
+.file-item .fi-icon{ font-size:17px; flex-shrink:0; }
+.file-item .fi-meta{ flex:1; min-width:0; }
+.file-item .fi-name{ font-size:13.5px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item .fi-sub{ font-size:10.5px; font-family: var(--mono); color: var(--muted); margin-top:2px; }
+.file-item.current{ border-color: var(--accent); background: rgba(57,255,176,0.06); }
+
+.status-msg{ text-align:center; font-family: var(--mono); font-size:13px; color: var(--muted); padding:60px 0; }
+.status-msg.error{ color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a href="index.html" class="back">← Ziyad 4 Upload</a>
+
+  <div id="loadingMsg" class="status-msg">جاري التحميل...</div>
+  <div id="errorMsg" class="status-msg error hidden">الملف ده مش موجود أو اتمسح</div>
+
+  <div id="content" class="hidden">
+    <div class="file-hero">
+      <div class="icon">📄</div>
+      <div id="fName" class="fname"></div>
+      <div id="fSize" class="fsize"></div>
+      <a id="downloadBtn" class="download-btn" href="#">⬇ تحميل الملف</a>
+    </div>
+
+    <div class="section-label">صاحب الملف</div>
+    <div class="owner-card">
+      <img id="ownerAvatar" class="owner-avatar" src="" alt="">
+      <div class="owner-info">
+        <div id="ownerName" class="owner-name">مستخدم</div>
+        <div id="ownerCount" class="owner-sub"></div>
+      </div>
+    </div>
+
+    <div class="section-label">باقي ملفات صاحب الحساب</div>
+    <div id="ownerFiles"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://acbjwwnphsnqahhyalko.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Ud40DgN8Ze7YTgIttjew7g_3TZ0IH8C";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const BUCKET = 'files';
+
+const loadingMsg = document.getElementById('loadingMsg');
+const errorMsg = document.getElementById('errorMsg');
+const content = document.getElementById('content');
+
+function formatSize(bytes){
+  if (!bytes) return '0 KB';
+  const units = ['B','KB','MB','GB']; let i=0, val=bytes;
+  while (val >= 1024 && i < units.length-1) { val/=1024; i++; }
+  return val.toFixed(1)+' '+units[i];
+}
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function init(){
+  const params = new URLSearchParams(window.location.search);
+  const fileId = params.get('id');
+  if (!fileId) { showError(); return; }
+
+  const { data: file, error: fileErr } = await supabaseClient
+    .from('files').select('*').eq('id', fileId).single();
+
+  if (fileErr || !file) { showError(); return; }
+
+  document.getElementById('fName').textContent = file.name;
+  document.getElementById('fSize').textContent = formatSize(file.size);
+
+  const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(file.path, { download: file.name });
+  document.getElementById('downloadBtn').href = urlData.publicUrl;
+
+  const { data: profile } = await supabaseClient
+    .from('profiles').select('*').eq('id', file.user_id).single();
+
+  document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
+  document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';
+
+  const { data: ownerFiles } = await supabaseClient
+    .from('files').select('*').eq('user_id', file.user_id).order('created_at', { ascending: false });
+
+  const list = ownerFiles || [];
+  document.getElementById('ownerCount').textContent = list.length + ' ملف';
+
+  const container = document.getElementById('ownerFiles');
+  container.innerHTML = '';
+  list.forEach(f => {
+    const a = document.createElement('a');
+    a.href = 'file.html?id=' + f.id;
+    a.className = 'file-item' + (f.id === file.id ? ' current' : '');
+    a.innerHTML = `
+      <span class="fi-icon">📄</span>
+      <div class="fi-meta">
+        <div class="fi-name">${escapeHtml(f.name)}</div>
+        <div class="fi-sub">${formatSize(f.size)}</div>
+      </div>
+    `;
+    container.appendChild(a);
+  });
+
+  loadingMsg.classList.add('hidden');
+  content.classList.remove('hidden');
+}
+
+function showError(){
+  loadingMsg.classList.add('hidden');
+  errorMsg.classList.remove('hidden');
+}
+
+init();
+</script>
+</body>
+</html>

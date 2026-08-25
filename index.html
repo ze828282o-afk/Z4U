@@ -333,7 +333,7 @@ googleLoginBtn.addEventListener('click', async () => {
 
 logoutBtn.addEventListener('click', () => supabaseClient.auth.signOut());
 
-supabaseClient.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session ? session.user : null;
   if (currentUser) {
     authScreen.classList.add('hidden');
@@ -342,6 +342,14 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     userAvatar.src = meta.avatar_url || '';
     userName.textContent = meta.full_name || meta.name || 'مستخدم';
     userEmail.textContent = currentUser.email || '';
+
+    await supabaseClient.from('profiles').upsert({
+      id: currentUser.id,
+      display_name: meta.full_name || meta.name || 'مستخدم',
+      avatar_url: meta.avatar_url || null,
+      updated_at: new Date().toISOString()
+    });
+
     loadFiles();
   } else {
     authScreen.classList.remove('hidden');
@@ -389,13 +397,13 @@ async function uploadFile(file) {
 
   const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path, { download: file.name });
 
-  const { error: dbError } = await supabaseClient.from('files').insert({
+  const { data: inserted, error: dbError } = await supabaseClient.from('files').insert({
     user_id: currentUser.id,
     name: file.name,
     path,
     url: urlData.publicUrl,
     size: file.size
-  });
+  }).select().single();
 
   if (dbError) alert('اترفع الملف بس حصل خطأ في حفظ البيانات: ' + dbError.message);
 
@@ -439,7 +447,7 @@ function renderFiles(files) {
         <div class="file-sub">${formatSize(file.size)}</div>
       </div>
       <div class="file-actions">
-        <button class="copy-btn" data-url="${file.url}">نسخ اللينك</button>
+        <button class="copy-btn" data-url="${window.location.origin}${window.location.pathname.replace('index.html','')}file.html?id=${file.id}">نسخ اللينك</button>
         <button class="delete-btn" data-id="${file.id}" data-path="${file.path}">حذف</button>
       </div>
     `;

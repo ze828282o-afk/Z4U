@@ -387,7 +387,7 @@ async function uploadFile(file) {
     return;
   }
 
-  const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path);
+  const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path, { download: file.name });
 
   const { error: dbError } = await supabaseClient.from('files').insert({
     user_id: currentUser.id,

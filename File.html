@@ -17,7 +17,6 @@
   --mono:'JetBrains Mono', monospace; --arabic:'IBM Plex Sans Arabic', sans-serif;
 }
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
 body{
   margin:0; min-height:100vh;
   background:
@@ -27,53 +26,20 @@ body{
     var(--bg);
   background-size: 34px 34px, 34px 34px, 100% 100%, 100%;
   color: var(--text); font-family: var(--arabic);
-  overflow-x:hidden; position:relative;
 }
+.wrap{ max-width:480px; margin:0 auto; padding:40px 18px 70px; }
 .hidden{ display:none !important; }
 
-.scan-overlay{ position:fixed; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
-.scan-overlay::before{
-  content:""; position:absolute; left:0; right:0; height:120px; top:-120px;
-  background:linear-gradient(180deg, transparent, rgba(57,255,176,0.06) 45%, rgba(57,255,176,0.10) 50%, rgba(57,255,176,0.06) 55%, transparent);
-  animation: sweep 7s linear infinite;
-}
-@keyframes sweep{ 0%{ top:-120px; } 100%{ top:110vh; } }
-#rain{ position:fixed; inset:0; z-index:0; opacity:0.16; }
-
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto;}
-  .scan-overlay::before{animation:none; opacity:0;}
-  #rain{ display:none; }
-  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
-}
-
-.wrap{ position:relative; z-index:1; max-width:480px; margin:0 auto; padding:40px 18px 70px; }
-
-.radar{ width:80px; height:80px; margin:0 auto 16px; position:relative; }
-.radar .ring{ position:absolute; inset:0; border-radius:50%; border:1px solid var(--glass-line); }
-.radar .ring.pulse{ animation: radarpulse 2.6s ease-out infinite; }
-.radar .ring.pulse.delay{ animation-delay:1.3s; }
-@keyframes radarpulse{ 0%{ transform:scale(0.72); opacity:0.9; } 100%{ transform:scale(1.35); opacity:0; } }
-.radar .core{
-  position:absolute; inset:8px; border-radius:50%; overflow:hidden;
-  background: radial-gradient(circle at 50% 35%, #10201a, #050706 75%);
-  border:1px solid var(--accent-dim);
-  box-shadow: 0 0 22px rgba(57,255,176,0.2), inset 0 0 14px rgba(57,255,176,0.10);
-  display:flex; align-items:center; justify-content:center;
-}
-.core-mark{ font-family: var(--mono); font-weight:700; color: var(--accent); letter-spacing:0.05em; font-size:12px; text-shadow:0 0 12px rgba(57,255,176,0.5); }
-
 .back{
-  display:flex; justify-content:center; align-items:center; gap:6px;
+  display:inline-flex; align-items:center; gap:6px;
   font-family: var(--mono); font-size:12px; color: var(--muted);
-  text-decoration:none; margin-bottom:28px;
+  text-decoration:none; margin-bottom:24px;
 }
 .back:hover{ color: var(--accent); }
 
 .file-hero{
-  background: var(--glass); backdrop-filter: blur(10px);
-  border:1px solid var(--glass-line); border-radius:16px;
-  padding:30px 20px; text-align:center; margin-bottom:16px;
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:16px;
+  padding:30px 20px; text-align:center; margin-bottom:20px;
 }
 .file-hero .icon{ font-size:44px; margin-bottom:14px; }
 .file-hero .fname{ font-size:17px; font-weight:600; word-break:break-word; margin-bottom:6px; }
@@ -89,17 +55,28 @@ body{
 
 .owner-card{
   display:flex; align-items:center; gap:12px;
-  background: var(--glass); backdrop-filter: blur(10px);
-  border:1px solid var(--glass-line); border-radius:12px;
-  padding:14px 16px; text-decoration:none; color: var(--text);
-  transition: border-color .2s ease;
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:12px;
+  padding:14px 16px; margin-bottom:10px;
 }
-.owner-card:hover{ border-color: var(--accent-dim); }
-.owner-avatar{ width:42px; height:42px; border-radius:50%; border:1px solid var(--accent-dim); object-fit:cover; background:var(--accent-soft); flex-shrink:0; }
+.owner-avatar{ width:42px; height:42px; border-radius:50%; border:1px solid var(--accent-dim); object-fit:cover; background:var(--accent-soft); }
 .owner-info{ flex:1; min-width:0; }
 .owner-name{ font-size:14px; font-weight:600; }
 .owner-sub{ font-family: var(--mono); font-size:11px; color: var(--muted); margin-top:2px; }
-.owner-arrow{ font-family: var(--mono); font-size:12px; color: var(--accent-dim); flex-shrink:0; }
+
+.section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:24px 0 10px; }
+
+.file-item{
+  display:flex; align-items:center; gap:12px;
+  background: var(--glass); border:1px solid var(--glass-line); border-inline-start:2px solid var(--accent-dim);
+  border-radius:10px; padding:12px 14px; margin-bottom:8px; text-decoration:none; color: var(--text);
+  transition: border-color .2s ease;
+}
+.file-item:hover{ border-inline-start-color: var(--accent); }
+.file-item .fi-icon{ font-size:17px; flex-shrink:0; }
+.file-item .fi-meta{ flex:1; min-width:0; }
+.file-item .fi-name{ font-size:13.5px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item .fi-sub{ font-size:10.5px; font-family: var(--mono); color: var(--muted); margin-top:2px; }
+.file-item.current{ border-color: var(--accent); background: rgba(57,255,176,0.06); }
 
 .status-msg{ text-align:center; font-family: var(--mono); font-size:13px; color: var(--muted); padding:60px 0; }
 .status-msg.error{ color: var(--danger); }
@@ -107,18 +84,8 @@ body{
 </head>
 <body>
 
-<canvas id="rain"></canvas>
-<div class="scan-overlay"></div>
-
 <div class="wrap">
-
   <a href="index.html" class="back">← Ziyad 4 Upload</a>
-
-  <div class="radar">
-    <div class="ring pulse"></div>
-    <div class="ring pulse delay"></div>
-    <div class="core"><div class="core-mark">Z4U</div></div>
-  </div>
 
   <div id="loadingMsg" class="status-msg">جاري التحميل...</div>
   <div id="errorMsg" class="status-msg error hidden">الملف ده مش موجود أو اتمسح</div>
@@ -131,14 +98,17 @@ body{
       <a id="downloadBtn" class="download-btn" href="#">⬇ تحميل الملف</a>
     </div>
 
-    <a id="ownerCard" class="owner-card" href="#">
+    <div class="section-label">صاحب الملف</div>
+    <div class="owner-card">
       <img id="ownerAvatar" class="owner-avatar" src="" alt="">
       <div class="owner-info">
         <div id="ownerName" class="owner-name">مستخدم</div>
-        <div class="owner-sub">شوف البروفايل وباقي ملفاته</div>
+        <div id="ownerCount" class="owner-sub"></div>
       </div>
-      <span class="owner-arrow">←</span>
-    </a>
+    </div>
+
+    <div class="section-label">باقي ملفات صاحب الحساب</div>
+    <div id="ownerFiles"></div>
   </div>
 </div>
 
@@ -159,6 +129,7 @@ function formatSize(bytes){
   while (val >= 1024 && i < units.length-1) { val/=1024; i++; }
   return val.toFixed(1)+' '+units[i];
 }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 
 async function init(){
   const params = new URLSearchParams(window.location.search);
@@ -181,7 +152,28 @@ async function init(){
 
   document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
   document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';
-  document.getElementById('ownerCard').href = 'profile.html?uid=' + file.user_id;
+
+  const { data: ownerFiles } = await supabaseClient
+    .from('files').select('*').eq('user_id', file.user_id).order('created_at', { ascending: false });
+
+  const list = ownerFiles || [];
+  document.getElementById('ownerCount').textContent = list.length + ' ملف';
+
+  const container = document.getElementById('ownerFiles');
+  container.innerHTML = '';
+  list.forEach(f => {
+    const a = document.createElement('a');
+    a.href = 'file.html?id=' + f.id;
+    a.className = 'file-item' + (f.id === file.id ? ' current' : '');
+    a.innerHTML = `
+      <span class="fi-icon">📄</span>
+      <div class="fi-meta">
+        <div class="fi-name">${escapeHtml(f.name)}</div>
+        <div class="fi-sub">${formatSize(f.size)}</div>
+      </div>
+    `;
+    container.appendChild(a);
+  });
 
   loadingMsg.classList.add('hidden');
   content.classList.remove('hidden');
@@ -193,38 +185,6 @@ function showError(){
 }
 
 init();
-
-// ---------- مطر الماتريكس ----------
-(function initRain(){
-  const canvas = document.getElementById('rain');
-  if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const ctx = canvas.getContext('2d');
-  const chars = 'Ziyad4Upload01アイウエオカキクケコ'.split('');
-  let cols, drops;
-
-  function resize(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    cols = Math.floor(canvas.width / 18);
-    drops = Array(cols).fill(0).map(() => Math.random() * -50);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  function draw(){
-    ctx.fillStyle = 'rgba(5,7,6,0.10)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#39ffb0';
-    ctx.font = '14px monospace';
-    drops.forEach((y, i) => {
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      ctx.fillText(char, i * 18, y * 18);
-      drops[i] = (y * 18 > canvas.height && Math.random() > 0.975) ? 0 : y + 1;
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 </script>
 </body>
 </html>

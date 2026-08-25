@@ -140,28 +140,6 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 }
 .logout-btn:hover{ color: var(--danger); border-color: var(--danger); }
 
-.bio-box{
-  background: var(--glass); border:1px solid var(--glass-line); border-radius:12px;
-  padding:14px 16px; margin-bottom:18px;
-}
-.bio-label{ display:block; font-family: var(--mono); font-size:10.5px; color: var(--muted); margin-bottom:8px; }
-.bio-box textarea{
-  width:100%; min-height:60px; resize:vertical;
-  font-family: var(--arabic); font-size:13.5px; color: var(--text);
-  background: rgba(255,255,255,0.03); border:1px solid var(--glass-line); border-radius:8px;
-  padding:10px 12px; outline:none; transition: border-color .2s ease;
-}
-.bio-box textarea:focus{ border-color: var(--accent-dim); }
-.bio-actions{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; flex-wrap:wrap; }
-.view-profile-link{ font-family: var(--mono); font-size:11px; color: var(--accent-dim); text-decoration:none; }
-.view-profile-link:hover{ color: var(--accent); }
-.save-bio-btn{
-  font-family: var(--mono); font-size:11.5px; color: #0a0e0c;
-  background: var(--accent); border:none; border-radius:8px;
-  padding:8px 14px; cursor:pointer; transition: transform .15s ease;
-}
-.save-bio-btn:hover{ transform: translateY(-1px); }
-
 .dropzone{
   border:1.5px dashed var(--glass-line);
   border-radius:14px;
@@ -280,15 +258,6 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
       <button id="logoutBtn" class="logout-btn" title="تسجيل الخروج">خروج</button>
     </div>
 
-    <div class="bio-box">
-      <label class="bio-label">نبذة عنك (تظهر لأي حد يفتح بروفايلك)</label>
-      <textarea id="bioInput" maxlength="200" placeholder="اكتب حاجة عنك..."></textarea>
-      <div class="bio-actions">
-        <a id="viewProfileLink" href="#" target="_blank" class="view-profile-link">👁 شوف بروفايلك زي ما الناس شايفاه</a>
-        <button id="saveBioBtn" class="save-bio-btn">حفظ النبذة</button>
-      </div>
-    </div>
-
     <div id="dropzone" class="dropzone">
       <input type="file" id="fileInput" hidden>
       <div class="dropzone-inner">
@@ -338,9 +307,6 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userAvatar = document.getElementById('userAvatar');
 const userName = document.getElementById('userName');
 const userEmail = document.getElementById('userEmail');
-const bioInput = document.getElementById('bioInput');
-const saveBioBtn = document.getElementById('saveBioBtn');
-const viewProfileLink = document.getElementById('viewProfileLink');
 
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
@@ -367,17 +333,6 @@ googleLoginBtn.addEventListener('click', async () => {
 
 logoutBtn.addEventListener('click', () => supabaseClient.auth.signOut());
 
-saveBioBtn.addEventListener('click', async () => {
-  if (!currentUser) return;
-  await supabaseClient.from('profiles').upsert({
-    id: currentUser.id,
-    bio: bioInput.value.trim()
-  });
-  const old = saveBioBtn.textContent;
-  saveBioBtn.textContent = 'اتحفظ ✓';
-  setTimeout(() => (saveBioBtn.textContent = old), 1500);
-});
-
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session ? session.user : null;
   if (currentUser) {
@@ -394,12 +349,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       avatar_url: meta.avatar_url || null,
       updated_at: new Date().toISOString()
     });
-
-    viewProfileLink.href = 'profile.html?uid=' + currentUser.id;
-
-    const { data: profileRow } = await supabaseClient
-      .from('profiles').select('bio').eq('id', currentUser.id).single();
-    bioInput.value = (profileRow && profileRow.bio) || '';
 
     loadFiles();
   } else {

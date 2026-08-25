@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ملف مشارك | Ziyad 4 Upload</title>
+<title>بروفايل | Ziyad 4 Upload</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,20 +49,6 @@ body{
 
 .wrap{ position:relative; z-index:1; max-width:480px; margin:0 auto; padding:40px 18px 70px; }
 
-.radar{ width:80px; height:80px; margin:0 auto 16px; position:relative; }
-.radar .ring{ position:absolute; inset:0; border-radius:50%; border:1px solid var(--glass-line); }
-.radar .ring.pulse{ animation: radarpulse 2.6s ease-out infinite; }
-.radar .ring.pulse.delay{ animation-delay:1.3s; }
-@keyframes radarpulse{ 0%{ transform:scale(0.72); opacity:0.9; } 100%{ transform:scale(1.35); opacity:0; } }
-.radar .core{
-  position:absolute; inset:8px; border-radius:50%; overflow:hidden;
-  background: radial-gradient(circle at 50% 35%, #10201a, #050706 75%);
-  border:1px solid var(--accent-dim);
-  box-shadow: 0 0 22px rgba(57,255,176,0.2), inset 0 0 14px rgba(57,255,176,0.10);
-  display:flex; align-items:center; justify-content:center;
-}
-.core-mark{ font-family: var(--mono); font-weight:700; color: var(--accent); letter-spacing:0.05em; font-size:12px; text-shadow:0 0 12px rgba(57,255,176,0.5); }
-
 .back{
   display:flex; justify-content:center; align-items:center; gap:6px;
   font-family: var(--mono); font-size:12px; color: var(--muted);
@@ -70,39 +56,58 @@ body{
 }
 .back:hover{ color: var(--accent); }
 
-.file-hero{
-  background: var(--glass); backdrop-filter: blur(10px);
-  border:1px solid var(--glass-line); border-radius:16px;
-  padding:30px 20px; text-align:center; margin-bottom:16px;
-}
-.file-hero .icon{ font-size:44px; margin-bottom:14px; }
-.file-hero .fname{ font-size:17px; font-weight:600; word-break:break-word; margin-bottom:6px; }
-.file-hero .fsize{ font-family: var(--mono); font-size:12px; color: var(--muted); margin-bottom:22px; }
-.download-btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:10px;
-  width:100%; font-family: var(--arabic); font-weight:600; font-size:15px;
-  color:#0a0e0c; background: var(--accent); border:none; border-radius:10px;
-  padding:14px 18px; cursor:pointer; text-decoration:none;
-  transition: transform .15s ease, box-shadow .2s ease;
-}
-.download-btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 24px rgba(57,255,176,0.25); }
+header.hero{ text-align:center; margin-bottom:30px; }
 
-.owner-card{
-  display:flex; align-items:center; gap:12px;
+.radar{ width:100px; height:100px; margin:0 auto 18px; position:relative; }
+.radar .ring{ position:absolute; inset:0; border-radius:50%; border:1px solid var(--glass-line); }
+.radar .ring.pulse{ animation: radarpulse 2.6s ease-out infinite; }
+.radar .ring.pulse.delay{ animation-delay:1.3s; }
+@keyframes radarpulse{ 0%{ transform:scale(0.72); opacity:0.9; } 100%{ transform:scale(1.35); opacity:0; } }
+.radar .core{
+  position:absolute; inset:9px; border-radius:50%; overflow:hidden;
+  background: radial-gradient(circle at 50% 35%, #10201a, #050706 75%);
+  border:1px solid var(--accent-dim);
+  box-shadow: 0 0 24px rgba(57,255,176,0.22), inset 0 0 16px rgba(57,255,176,0.10);
+}
+.radar .core img{ width:100%; height:100%; object-fit:cover; }
+.radar .core .core-fallback{
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono); font-weight:700; color: var(--accent); font-size:26px;
+}
+
+.pname{ font-size:20px; font-weight:700; margin-bottom:6px; }
+.pcount{
+  display:inline-flex; align-items:center; gap:8px; font-family: var(--mono); font-size:11px;
+  letter-spacing:0.05em; color: var(--accent); background: var(--accent-soft); border:1px solid var(--glass-line);
+  padding:5px 12px; border-radius:999px; margin-bottom:16px;
+}
+
+.bio-card{
   background: var(--glass); backdrop-filter: blur(10px);
   border:1px solid var(--glass-line); border-radius:12px;
-  padding:14px 16px; text-decoration:none; color: var(--text);
+  padding:16px 18px; font-size:13.5px; line-height:1.8; color: var(--text);
+  text-align:center;
+}
+.bio-card.empty{ color: var(--muted); font-family: var(--mono); font-size:12px; }
+
+.section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:28px 0 10px; }
+
+.file-item{
+  display:flex; align-items:center; gap:12px;
+  background: var(--glass); backdrop-filter: blur(10px);
+  border:1px solid var(--glass-line); border-inline-start:2px solid var(--accent-dim);
+  border-radius:10px; padding:14px 16px; margin-bottom:10px; text-decoration:none; color: var(--text);
   transition: border-color .2s ease;
 }
-.owner-card:hover{ border-color: var(--accent-dim); }
-.owner-avatar{ width:42px; height:42px; border-radius:50%; border:1px solid var(--accent-dim); object-fit:cover; background:var(--accent-soft); flex-shrink:0; }
-.owner-info{ flex:1; min-width:0; }
-.owner-name{ font-size:14px; font-weight:600; }
-.owner-sub{ font-family: var(--mono); font-size:11px; color: var(--muted); margin-top:2px; }
-.owner-arrow{ font-family: var(--mono); font-size:12px; color: var(--accent-dim); flex-shrink:0; }
+.file-item:hover{ border-inline-start-color: var(--accent); }
+.file-item .fi-icon{ font-size:18px; flex-shrink:0; }
+.file-item .fi-meta{ flex:1; min-width:0; }
+.file-item .fi-name{ font-size:14px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item .fi-sub{ font-size:11px; font-family: var(--mono); color: var(--muted); margin-top:2px; }
 
 .status-msg{ text-align:center; font-family: var(--mono); font-size:13px; color: var(--muted); padding:60px 0; }
 .status-msg.error{ color: var(--danger); }
+.empty-files{ text-align:center; font-family: var(--mono); font-size:12px; color: var(--muted); padding:20px 0; }
 </style>
 </head>
 <body>
@@ -114,31 +119,24 @@ body{
 
   <a href="index.html" class="back">← Ziyad 4 Upload</a>
 
-  <div class="radar">
-    <div class="ring pulse"></div>
-    <div class="ring pulse delay"></div>
-    <div class="core"><div class="core-mark">Z4U</div></div>
-  </div>
-
   <div id="loadingMsg" class="status-msg">جاري التحميل...</div>
-  <div id="errorMsg" class="status-msg error hidden">الملف ده مش موجود أو اتمسح</div>
+  <div id="errorMsg" class="status-msg error hidden">البروفايل ده مش موجود</div>
 
   <div id="content" class="hidden">
-    <div class="file-hero">
-      <div class="icon">📄</div>
-      <div id="fName" class="fname"></div>
-      <div id="fSize" class="fsize"></div>
-      <a id="downloadBtn" class="download-btn" href="#">⬇ تحميل الملف</a>
-    </div>
-
-    <a id="ownerCard" class="owner-card" href="#">
-      <img id="ownerAvatar" class="owner-avatar" src="" alt="">
-      <div class="owner-info">
-        <div id="ownerName" class="owner-name">مستخدم</div>
-        <div class="owner-sub">شوف البروفايل وباقي ملفاته</div>
+    <header class="hero">
+      <div class="radar">
+        <div class="ring pulse"></div>
+        <div class="ring pulse delay"></div>
+        <div class="core"><img id="ownerAvatar" alt="" onerror="this.style.display='none'"></div>
       </div>
-      <span class="owner-arrow">←</span>
-    </a>
+      <div id="pname" class="pname"></div>
+      <div id="pcount" class="pcount"></div>
+      <div id="bioCard" class="bio-card"></div>
+    </header>
+
+    <div class="section-label">كل ملفاته</div>
+    <div id="fileList"></div>
+    <p id="emptyFiles" class="empty-files hidden">لسه مفيش ملفات</p>
   </div>
 </div>
 
@@ -147,7 +145,6 @@ body{
 const SUPABASE_URL = "https://acbjwwnphsnqahhyalko.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Ud40DgN8Ze7YTgIttjew7g_3TZ0IH8C";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const BUCKET = 'files';
 
 const loadingMsg = document.getElementById('loadingMsg');
 const errorMsg = document.getElementById('errorMsg');
@@ -159,29 +156,63 @@ function formatSize(bytes){
   while (val >= 1024 && i < units.length-1) { val/=1024; i++; }
   return val.toFixed(1)+' '+units[i];
 }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 
 async function init(){
   const params = new URLSearchParams(window.location.search);
-  const fileId = params.get('id');
-  if (!fileId) { showError(); return; }
+  const uid = params.get('uid');
+  if (!uid) { showError(); return; }
 
-  const { data: file, error: fileErr } = await supabaseClient
-    .from('files').select('*').eq('id', fileId).single();
+  const { data: profile, error: profileErr } = await supabaseClient
+    .from('profiles').select('*').eq('id', uid).single();
 
-  if (fileErr || !file) { showError(); return; }
+  if (profileErr || !profile) { showError(); return; }
 
-  document.getElementById('fName').textContent = file.name;
-  document.getElementById('fSize').textContent = formatSize(file.size);
+  document.getElementById('pname').textContent = profile.display_name || 'مستخدم';
 
-  const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(file.path, { download: file.name });
-  document.getElementById('downloadBtn').href = urlData.publicUrl;
+  const avatarEl = document.getElementById('ownerAvatar');
+  if (profile.avatar_url) {
+    avatarEl.src = profile.avatar_url;
+  } else {
+    avatarEl.remove();
+    document.querySelector('.radar .core').innerHTML = `<div class="core-fallback">${(profile.display_name || '؟').charAt(0)}</div>`;
+  }
 
-  const { data: profile } = await supabaseClient
-    .from('profiles').select('*').eq('id', file.user_id).single();
+  const bioCard = document.getElementById('bioCard');
+  if (profile.bio && profile.bio.trim()) {
+    bioCard.textContent = profile.bio.trim();
+  } else {
+    bioCard.textContent = 'مفيش نبذة لسه';
+    bioCard.classList.add('empty');
+  }
 
-  document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
-  document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';
-  document.getElementById('ownerCard').href = 'profile.html?uid=' + file.user_id;
+  const { data: files } = await supabaseClient
+    .from('files').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+
+  const list = files || [];
+  document.getElementById('pcount').textContent = list.length + ' ملف';
+
+  const container = document.getElementById('fileList');
+  const emptyFiles = document.getElementById('emptyFiles');
+  container.innerHTML = '';
+
+  if (list.length === 0) {
+    emptyFiles.classList.remove('hidden');
+  } else {
+    list.forEach(f => {
+      const a = document.createElement('a');
+      a.href = 'file.html?id=' + f.id;
+      a.className = 'file-item';
+      a.innerHTML = `
+        <span class="fi-icon">📄</span>
+        <div class="fi-meta">
+          <div class="fi-name">${escapeHtml(f.name)}</div>
+          <div class="fi-sub">${formatSize(f.size)}</div>
+        </div>
+      `;
+      container.appendChild(a);
+    });
+  }
 
   loadingMsg.classList.add('hidden');
   content.classList.remove('hidden');

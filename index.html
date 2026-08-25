@@ -300,9 +300,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 const BUCKET = 'files';
 
-// دومين موقع "صفحة الملف" المنفصل — استبدله بدومين موقعك التاني بعد ما تنشره
-const FILE_VIEWER_URL = "https://z4uuploadpage.vercel.app";
-
 const authScreen = document.getElementById('authScreen');
 const dashboardScreen = document.getElementById('dashboardScreen');
 const googleLoginBtn = document.getElementById('googleLoginBtn');
@@ -450,7 +447,7 @@ function renderFiles(files) {
         <div class="file-sub">${formatSize(file.size)}</div>
       </div>
       <div class="file-actions">
-        <button class="copy-btn" data-url="${FILE_VIEWER_URL}/?id=${file.id}">نسخ اللينك</button>
+        <button class="copy-btn" data-url="${window.location.origin}/file.html?id=${file.id}">نسخ اللينك</button>
         <button class="delete-btn" data-id="${file.id}" data-path="${file.path}">حذف</button>
       </div>
     `;

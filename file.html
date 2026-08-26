@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>ملف مشارك | Ziyad 4 Upload</title>
 
+<link rel="icon" type="image/png" href="https://i.postimg.cc/tTz8fJxd/Gemini-Generated-Image-iojs4iiojs4iiojs-Cropped-removebg-preview.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -68,7 +70,7 @@ body{
   box-shadow: 0 0 22px rgba(57,255,176,0.2), inset 0 0 14px rgba(57,255,176,0.10);
   display:flex; align-items:center; justify-content:center;
 }
-.core-mark{ font-family: var(--mono); font-weight:700; color: var(--accent); letter-spacing:0.05em; font-size:12px; text-shadow:0 0 12px rgba(57,255,176,0.5); }
+.core-logo{ width:65%; height:65%; object-fit:contain; filter: drop-shadow(0 0 8px rgba(57,255,176,0.6)); }
 
 .file-hero{
   background: var(--glass); backdrop-filter: blur(10px);
@@ -127,7 +129,9 @@ body{
   <div class="radar">
     <div class="ring pulse"></div>
     <div class="ring pulse delay"></div>
-    <div class="core"><div class="core-mark">Z4U</div></div>
+    <div class="core">
+      <img src="https://i.postimg.cc/tTz8fJxd/Gemini-Generated-Image-iojs4iiojs4iiojs-Cropped-removebg-preview.png" alt="Z4U Logo" class="core-logo">
+    </div>
   </div>
 
   <div id="loadingMsg" class="status-msg">جاري التحميل...</div>
@@ -191,7 +195,7 @@ async function init(){
   document.getElementById('downloadBtn').href = urlData.publicUrl;
 
   const { data: profile } = await supabaseClient
-    .from('profiles').select('*').eq('id', file.user_id).single();
+    .from('files').select('*').eq('user_id', file.user_id).single();
 
   document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
   document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';

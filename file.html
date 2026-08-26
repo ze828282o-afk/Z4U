@@ -200,7 +200,7 @@ async function init(){
   document.getElementById('downloadBtn').href = urlData.publicUrl;
 
   const { data: profile } = await supabaseClient
-    .from('profiles').select('*').eq('user_id', file.user_id).single();
+    .from('profiles').select('*').eq('id', file.user_id).single();
 
   document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
   document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';

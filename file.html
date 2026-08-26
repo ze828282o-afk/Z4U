@@ -73,7 +73,7 @@ body{
 .core-logo{ width:65%; height:65%; object-fit:contain; filter: drop-shadow(0 0 8px rgba(57,255,176,0.6)); }
 
 .file-hero{
-  background: var(--glass); backdrop-filter: blur(10px);
+  background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   border:1px solid var(--glass-line); border-radius:16px;
   padding:30px 20px; text-align:center; margin-bottom:16px;
 }
@@ -195,7 +195,7 @@ async function init(){
   document.getElementById('downloadBtn').href = urlData.publicUrl;
 
   const { data: profile } = await supabaseClient
-    .from('files').select('*').eq('user_id', file.user_id).single();
+    .from('profiles').select('*').eq('user_id', file.user_id).single();
 
   document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
   document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';
@@ -248,7 +248,11 @@ init();
     drops = Array(cols).fill(0).map(() => Math.random() * -50);
   }
   resize();
-  window.addEventListener('resize', resize);
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+  });
 
   function draw(){
     ctx.fillStyle = 'rgba(5,7,6,0.10)';

@@ -102,6 +102,7 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 /* ===== شاشة تسجيل الدخول ===== */
 .auth-card{
   background: var(--glass);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border:1px solid var(--glass-line);
   border-radius:14px;
@@ -199,7 +200,7 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 
 .file-item{
   display:flex; align-items:center; gap:12px;
-  background: var(--glass); backdrop-filter: blur(10px);
+  background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   border:1px solid var(--glass-line); border-inline-start:2px solid var(--accent-dim);
   border-radius:10px; padding:14px 16px;
   transition: border-color .2s ease;
@@ -558,7 +559,11 @@ function escapeHtml(str) {
     drops = Array(cols).fill(0).map(() => Math.random() * -50);
   }
   resize();
-  window.addEventListener('resize', resize);
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+  });
 
   function draw(){
     ctx.fillStyle = 'rgba(5,7,6,0.10)';

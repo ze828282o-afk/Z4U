@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>بروفايل | Ziyad 4 Upload</title>
+
+<link rel="icon" type="image/png" href="https://i.postimg.cc/tTz8fJxd/Gemini-Generated-Image-iojs4iiojs4iiojs-Cropped-removebg-preview.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050706; --glass: rgba(18,26,23,0.55); --glass-line: rgba(57,255,176,0.18);
+  --accent:#39ffb0; --accent-dim:#1c8f5f; --accent-soft: rgba(57,255,176,0.12);
+  --danger:#ff5c5c; --text:#e7f3ee; --muted:#6f8079;
+  --mono:'JetBrains Mono', monospace; --arabic:'IBM Plex Sans Arabic', sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; min-height:100vh;
+  background:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(57,255,176,0.07), transparent 60%),
+    var(--bg);
+  background-size: 34px 34px, 34px 34px, 100% 100%, 100%;
+  color: var(--text); font-family: var(--arabic);
+  overflow-x:hidden; position:relative;
+}
+.hidden{ display:none !important; }
+
+.scan-overlay{ position:fixed; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
+.scan-overlay::before{
+  content:""; position:absolute; left:0; right:0; height:120px; top:-120px;
+  background:linear-gradient(180deg, transparent, rgba(57,255,176,0.06) 45%, rgba(57,255,176,0.10) 50%, rgba(57,255,176,0.06) 55%, transparent);
+  animation: sweep 7s linear infinite;
+}
+@keyframes sweep{ 0%{ top:-120px; } 100%{ top:110vh; } }
+#rain{ position:fixed; inset:0; z-index:0; opacity:0.16; }
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .scan-overlay::before{animation:none; opacity:0;}
+  #rain{ display:none; }
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+.wrap{ position:relative; z-index:1; max-width:480px; margin:0 auto; padding:40px 18px 70px; }
+
+.back{
+  display:flex; justify-content:center; align-items:center; gap:6px;
+  font-family: var(--mono); font-size:12px; color: var(--muted);
+  text-decoration:none; margin-bottom:28px;
+}
+.back:hover{ color: var(--accent); }
+
+header.hero{ text-align:center; margin-bottom:30px; }
+
+.radar{ width:100px; height:100px; margin:0 auto 18px; position:relative; }
+.radar .ring{ position:absolute; inset:0; border-radius:50%; border:1px solid var(--glass-line); }
+.radar .ring.pulse{ animation: radarpulse 2.6s ease-out infinite; }
+.radar .ring.pulse.delay{ animation-delay:1.3s; }
+@keyframes radarpulse{ 0%{ transform:scale(0.72); opacity:0.9; } 100%{ transform:scale(1.35); opacity:0; } }
+.radar .core{
+  position:absolute; inset:9px; border-radius:50%; overflow:hidden;
+  background: radial-gradient(circle at 50% 35%, #10201a, #050706 75%);
+  border:1px solid var(--accent-dim);
+  box-shadow: 0 0 24px rgba(57,255,176,0.22), inset 0 0 16px rgba(57,255,176,0.10);
+  display:flex; align-items:center; justify-content:center;
+}
+.radar .core img{ width:100%; height:100%; object-fit:cover; }
+.core-fallback{
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono); font-weight:700; color: var(--accent); font-size:26px;
+}
+
+.pname{ font-size:20px; font-weight:700; margin-bottom:10px; }
+
+.bio-card{
+  background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border:1px solid var(--glass-line); border-radius:12px;
+  padding:16px 18px; font-size:13.5px; line-height:1.8; color: var(--text);
+  text-align:center;
+}
+.bio-card.empty{ color: var(--muted); font-family: var(--mono); font-size:12px; }
+
+.section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:28px 0 10px; display:flex; justify-content:space-between; }
+
+.file-item{
+  display:flex; align-items:center; gap:12px;
+  background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border:1px solid var(--glass-line); border-inline-start:2px solid var(--accent-dim);
+  border-radius:10px; padding:14px 16px; margin-bottom:10px; text-decoration:none; color: var(--text);
+  transition: border-color .2s ease;
+}
+.file-item:hover{ border-inline-start-color: var(--accent); }
+.file-item .fi-icon{ font-size:18px; flex-shrink:0; }
+.file-item .fi-meta{ flex:1; min-width:0; }
+.file-item .fi-name{ font-size:14px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item .fi-sub{ font-size:11px; font-family: var(--mono); color: var(--muted); margin-top:2px; }
+
+.status-msg{ text-align:center; font-family: var(--mono); font-size:13px; color: var(--muted); padding:60px 0; }
+.status-msg.error{ color: var(--danger); }
+.empty-files{ text-align:center; font-family: var(--mono); font-size:12px; color: var(--muted); padding:20px 0; }
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+<div class="scan-overlay"></div>
+
+<div class="wrap">
+
+  <a href="index.html" class="back">← Ziyad 4 Upload</a>
+
+  <div id="loadingMsg" class="status-msg">جاري التحميل...</div>
+  <div id="errorMsg" class="status-msg error hidden">البروفايل ده مش موجود</div>
+
+  <div id="content" class="hidden">
+    <header class="hero">
+      <div class="radar">
+        <div class="ring pulse"></div>
+        <div class="ring pulse delay"></div>
+        <div class="core" id="coreWrap"><img id="ownerAvatar" alt="" onerror="this.style.display='none'"></div>
+      </div>
+      <div id="pname" class="pname"></div>
+      <div id="bioCard" class="bio-card"></div>
+    </header>
+
+    <div class="section-label"><span>كل ملفاته</span><span id="fileCount"></span></div>
+    <div id="fileList"></div>
+    <p id="emptyFiles" class="empty-files hidden">لسه مفيش ملفات</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://acbjwwnphsnqahhyalko.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Ud40DgN8Ze7YTgIttjew7g_3TZ0IH8C";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const loadingMsg = document.getElementById('loadingMsg');
+const errorMsg = document.getElementById('errorMsg');
+const content = document.getElementById('content');
+
+function formatSize(bytes){
+  if (!bytes) return '0 KB';
+  const units = ['B','KB','MB','GB']; let i=0, val=bytes;
+  while (val >= 1024 && i < units.length-1) { val/=1024; i++; }
+  return val.toFixed(1)+' '+units[i];
+}
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function init(){
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get('uid');
+  if (!uid) { showError(); return; }
+
+  const { data: profile, error: profileErr } = await supabaseClient
+    .from('profiles').select('*').eq('id', uid).single();
+
+  if (profileErr || !profile) { showError(); return; }
+
+  document.getElementById('pname').textContent = profile.display_name || 'مستخدم';
+
+  const avatarEl = document.getElementById('ownerAvatar');
+  if (profile.avatar_url) {
+    avatarEl.src = profile.avatar_url;
+  } else {
+    document.getElementById('coreWrap').innerHTML = `<div class="core-fallback">${(profile.display_name || '؟').charAt(0)}</div>`;
+  }
+
+  const bioCard = document.getElementById('bioCard');
+  if (profile.bio && profile.bio.trim()) {
+    bioCard.textContent = profile.bio.trim();
+  } else {
+    bioCard.textContent = 'مفيش نبذة لسه';
+    bioCard.classList.add('empty');
+  }
+
+  const { data: files } = await supabaseClient
+    .from('files').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+
+  const list = files || [];
+  document.getElementById('fileCount').textContent = list.length + ' ملف';
+
+  const container = document.getElementById('fileList');
+  const emptyFiles = document.getElementById('emptyFiles');
+  container.innerHTML = '';
+
+  if (list.length === 0) {
+    emptyFiles.classList.remove('hidden');
+  } else {
+    list.forEach(f => {
+      const a = document.createElement('a');
+      a.href = 'file.html?id=' + f.id;
+      a.className = 'file-item';
+      a.innerHTML = `
+        <span class="fi-icon">📄</span>
+        <div class="fi-meta">
+          <div class="fi-name">${escapeHtml(f.name)}</div>
+          <div class="fi-sub">${formatSize(f.size)} · 👁 ${f.view_count || 0} · ⬇ ${f.download_count || 0}</div>
+        </div>
+      `;
+      container.appendChild(a);
+    });
+  }
+
+  loadingMsg.classList.add('hidden');
+  content.classList.remove('hidden');
+}
+
+function showError(){
+  loadingMsg.classList.add('hidden');
+  errorMsg.classList.remove('hidden');
+}
+
+init();
+
+(function initRain(){
+  const canvas = document.getElementById('rain');
+  if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = canvas.getContext('2d');
+  const chars = 'Ziyad4Upload01アイウエオカキクケコ'.split('');
+  let cols, drops;
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width / 18);
+    drops = Array(cols).fill(0).map(() => Math.random() * -50);
+  }
+  resize();
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+  });
+
+  function draw(){
+    ctx.fillStyle = 'rgba(5,7,6,0.10)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#39ffb0';
+    ctx.font = '14px monospace';
+    drops.forEach((y, i) => {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * 18, y * 18);
+      drops[i] = (y * 18 > canvas.height && Math.random() > 0.975) ? 0 : y + 1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

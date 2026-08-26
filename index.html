@@ -140,6 +140,14 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 }
 .logout-btn:hover{ color: var(--danger); border-color: var(--danger); }
 
+.cancel-upload-btn{
+  display:block; width:100%; margin-top:10px;
+  font-family: var(--mono); font-size:11.5px; color: var(--muted);
+  background:transparent; border:1px solid var(--glass-line); border-radius:8px;
+  padding:8px 12px; cursor:pointer; transition: all .2s ease;
+}
+.cancel-upload-btn:hover{ color: var(--danger); border-color: var(--danger); }
+
 .dropzone{
   border:1.5px dashed var(--glass-line);
   border-radius:14px;
@@ -273,6 +281,7 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
         <span id="progressPercent">0%</span>
       </div>
       <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
+      <button id="cancelUploadBtn" class="cancel-upload-btn">✕ إلغاء الرفع</button>
     </div>
 
     <div class="search-box">
@@ -307,13 +316,13 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userAvatar = document.getElementById('userAvatar');
 const userName = document.getElementById('userName');
 const userEmail = document.getElementById('userEmail');
-
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const uploadProgress = document.getElementById('uploadProgress');
 const progressFileName = document.getElementById('progressFileName');
 const progressPercent = document.getElementById('progressPercent');
 const progressBar = document.getElementById('progressBar');
+const cancelUploadBtn = document.getElementById('cancelUploadBtn');
 
 const searchInput = document.getElementById('searchInput');
 const fileListEl = document.getElementById('fileList');
@@ -322,6 +331,7 @@ const noResults = document.getElementById('noResults');
 
 let currentUser = null;
 let allFiles = [];
+let currentUploadXhr = null;
 
 googleLoginBtn.addEventListener('click', async () => {
   const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -332,6 +342,10 @@ googleLoginBtn.addEventListener('click', async () => {
 });
 
 logoutBtn.addEventListener('click', () => supabaseClient.auth.signOut());
+
+cancelUploadBtn.addEventListener('click', () => {
+  if (currentUploadXhr) currentUploadXhr.abort();
+});
 
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session ? session.user : null;
@@ -380,41 +394,78 @@ async function uploadFile(file) {
 
   const path = `${currentUser.id}/${Date.now()}_${file.name}`;
 
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const token = sessionData.session.access_token;
+
   uploadProgress.classList.remove('hidden');
   progressFileName.textContent = file.name;
-  progressBar.style.width = '10%';
-  progressPercent.textContent = '...';
+  progressBar.style.width = '0%';
+  progressPercent.textContent = '0%';
 
-  const { error: uploadError } = await supabaseClient.storage
-    .from(BUCKET)
-    .upload(path, file, { cacheControl: '3600', upsert: false });
+  const xhr = new XMLHttpRequest();
+  currentUploadXhr = xhr;
 
-  if (uploadError) {
-    alert('فشل الرفع: ' + uploadError.message);
-    uploadProgress.classList.add('hidden');
-    return;
-  }
+  const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURIComponent(path)}`;
+  xhr.open('POST', uploadUrl, true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+  xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
 
-  const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path, { download: file.name });
+  xhr.upload.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
+      progressBar.style.width = pct + '%';
+      progressPercent.textContent = pct + '%';
+    }
+  };
 
-  const { data: inserted, error: dbError } = await supabaseClient.from('files').insert({
-    user_id: currentUser.id,
-    name: file.name,
-    path,
-    url: urlData.publicUrl,
-    size: file.size
-  }).select().single();
+  xhr.onload = async () => {
+    currentUploadXhr = null;
+    if (xhr.status < 200 || xhr.status >= 300) {
+      alert('فشل الرفع: ' + xhr.responseText);
+      uploadProgress.classList.add('hidden');
+      return;
+    }
 
-  if (dbError) alert('اترفع الملف بس حصل خطأ في حفظ البيانات: ' + dbError.message);
+    const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path, { download: file.name });
 
-  progressBar.style.width = '100%';
-  progressPercent.textContent = '100%';
-  setTimeout(() => {
+    const { error: dbError } = await supabaseClient.from('files').insert({
+      user_id: currentUser.id,
+      name: file.name,
+      path,
+      url: urlData.publicUrl,
+      size: file.size
+    });
+
+    if (dbError) alert('اترفع الملف بس حصل خطأ في حفظ البيانات: ' + dbError.message);
+
+    progressBar.style.width = '100%';
+    progressPercent.textContent = '100%';
+    setTimeout(() => {
+      uploadProgress.classList.add('hidden');
+      progressBar.style.width = '0%';
+    }, 400);
+
+    loadFiles();
+  };
+
+  xhr.onerror = () => {
+    currentUploadXhr = null;
+    alert('فشل الرفع، تأكد من الاتصال بالإنترنت');
     uploadProgress.classList.add('hidden');
     progressBar.style.width = '0%';
-  }, 400);
+  };
 
-  loadFiles();
+  xhr.onabort = () => {
+    currentUploadXhr = null;
+    progressFileName.textContent = 'اتلغى الرفع';
+    setTimeout(() => {
+      uploadProgress.classList.add('hidden');
+      progressBar.style.width = '0%';
+    }, 700);
+  };
+
+  xhr.send(file);
 }
 
 async function loadFiles() {

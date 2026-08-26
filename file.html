@@ -98,6 +98,10 @@ body{
 .owner-info{ flex:1; min-width:0; }
 .owner-name{ font-size:14px; font-weight:600; }
 .owner-sub{ font-family: var(--mono); font-size:11px; color: var(--muted); margin-top:2px; }
+.owner-bio{
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:10px;
+  padding:12px 14px; margin-top:10px; font-size:13px; line-height:1.75; color: var(--text);
+}
 
 .section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:24px 0 10px; }
 
@@ -153,6 +157,7 @@ body{
         <div id="ownerCount" class="owner-sub"></div>
       </div>
     </div>
+    <div id="ownerBio" class="owner-bio hidden"></div>
 
     <div class="section-label">باقي ملفات صاحب الحساب</div>
     <div id="ownerFiles"></div>
@@ -199,6 +204,12 @@ async function init(){
 
   document.getElementById('ownerName').textContent = (profile && profile.display_name) || 'مستخدم';
   document.getElementById('ownerAvatar').src = (profile && profile.avatar_url) || '';
+
+  const ownerBioEl = document.getElementById('ownerBio');
+  if (profile && profile.bio && profile.bio.trim()) {
+    ownerBioEl.textContent = profile.bio.trim();
+    ownerBioEl.classList.remove('hidden');
+  }
 
   const { data: ownerFiles } = await supabaseClient
     .from('files').select('*').eq('user_id', file.user_id).order('created_at', { ascending: false });

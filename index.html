@@ -151,6 +151,40 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 }
 .cancel-upload-btn:hover{ color: var(--danger); border-color: var(--danger); }
 
+.profile-edit{
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:12px;
+  padding:14px 16px; margin-bottom:18px;
+}
+.profile-edit-head{ font-family: var(--mono); font-size:10.5px; color: var(--muted); margin-bottom:12px; }
+.profile-edit-row{ display:flex; gap:12px; align-items:flex-start; }
+.avatar-upload-wrap{ position:relative; flex-shrink:0; }
+.avatar-upload-preview{
+  width:56px; height:56px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--accent-dim); background: var(--accent-soft);
+}
+.avatar-upload-btn{
+  position:absolute; bottom:-4px; left:-4px;
+  width:22px; height:22px; border-radius:50%;
+  background: var(--accent); color:#0a0e0c;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; cursor:pointer; border:2px solid var(--bg);
+}
+.profile-edit-fields{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+.profile-input, .profile-textarea{
+  width:100%; font-family: var(--arabic); font-size:13px; color: var(--text);
+  background: rgba(255,255,255,0.03); border:1px solid var(--glass-line); border-radius:8px;
+  padding:8px 10px; outline:none; transition: border-color .2s ease;
+}
+.profile-textarea{ min-height:44px; resize:vertical; }
+.profile-input:focus, .profile-textarea:focus{ border-color: var(--accent-dim); }
+.save-profile-btn{
+  display:block; width:100%; margin-top:12px;
+  font-family: var(--mono); font-size:11.5px; color: #0a0e0c;
+  background: var(--accent); border:none; border-radius:8px;
+  padding:9px 12px; cursor:pointer; transition: transform .15s ease;
+}
+.save-profile-btn:hover{ transform: translateY(-1px); }
+
 .dropzone{
   border:1.5px dashed var(--glass-line);
   border-radius:14px;
@@ -269,6 +303,24 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
       <button id="logoutBtn" class="logout-btn" title="تسجيل الخروج">خروج</button>
     </div>
 
+    <div class="profile-edit">
+      <div class="profile-edit-head">✎ عدّل بروفايلك (يظهر لأي حد يفتح لينك ملفاتك)</div>
+
+      <div class="profile-edit-row">
+        <div class="avatar-upload-wrap">
+          <img id="profileAvatarPreview" class="avatar-upload-preview" src="" alt="">
+          <label for="avatarFileInput" class="avatar-upload-btn">📷</label>
+          <input type="file" id="avatarFileInput" accept="image/*" hidden>
+        </div>
+        <div class="profile-edit-fields">
+          <input type="text" id="displayNameInput" class="profile-input" placeholder="اسمك" maxlength="40">
+          <textarea id="bioInputField" class="profile-textarea" placeholder="اكتب نبذة عنك..." maxlength="150"></textarea>
+        </div>
+      </div>
+
+      <button id="saveProfileBtn" class="save-profile-btn">حفظ البروفايل</button>
+    </div>
+
     <div id="dropzone" class="dropzone">
       <input type="file" id="fileInput" hidden>
       <div class="dropzone-inner">
@@ -327,6 +379,12 @@ const progressPercent = document.getElementById('progressPercent');
 const progressBar = document.getElementById('progressBar');
 const cancelUploadBtn = document.getElementById('cancelUploadBtn');
 
+const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+const avatarFileInput = document.getElementById('avatarFileInput');
+const displayNameInput = document.getElementById('displayNameInput');
+const bioInputField = document.getElementById('bioInputField');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+
 const searchInput = document.getElementById('searchInput');
 const fileListEl = document.getElementById('fileList');
 const emptyState = document.getElementById('emptyState');
@@ -346,6 +404,62 @@ googleLoginBtn.addEventListener('click', async () => {
 
 logoutBtn.addEventListener('click', () => supabaseClient.auth.signOut());
 
+let pendingAvatarFile = null;
+
+avatarFileInput.addEventListener('change', () => {
+  const file = avatarFileInput.files[0];
+  if (!file) return;
+  pendingAvatarFile = file;
+  profileAvatarPreview.src = URL.createObjectURL(file);
+});
+
+saveProfileBtn.addEventListener('click', async () => {
+  if (!currentUser) return;
+
+  const oldText = saveProfileBtn.textContent;
+  saveProfileBtn.textContent = 'جاري الحفظ...';
+  saveProfileBtn.disabled = true;
+
+  let avatarUrl = profileAvatarPreview.src.startsWith('blob:') ? null : profileAvatarPreview.src;
+
+  if (pendingAvatarFile) {
+    const ext = pendingAvatarFile.name.split('.').pop() || 'jpg';
+    const path = `${currentUser.id}/avatar.${ext}`;
+    const { error: upErr } = await supabaseClient.storage
+      .from('avatars')
+      .upload(path, pendingAvatarFile, { upsert: true });
+
+    if (upErr) {
+      alert('فشل رفع الصورة: ' + upErr.message);
+      saveProfileBtn.textContent = oldText;
+      saveProfileBtn.disabled = false;
+      return;
+    }
+
+    const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+    avatarUrl = urlData.publicUrl + '?t=' + Date.now();
+    pendingAvatarFile = null;
+  }
+
+  const { error } = await supabaseClient.from('profiles').upsert({
+    id: currentUser.id,
+    display_name: displayNameInput.value.trim() || 'مستخدم',
+    avatar_url: avatarUrl,
+    bio: bioInputField.value.trim()
+  });
+
+  if (error) {
+    alert('حصل خطأ وقت الحفظ: ' + error.message);
+  } else {
+    userAvatar.src = avatarUrl || '';
+    userName.textContent = displayNameInput.value.trim() || 'مستخدم';
+  }
+
+  saveProfileBtn.textContent = 'اتحفظ ✓';
+  saveProfileBtn.disabled = false;
+  setTimeout(() => (saveProfileBtn.textContent = oldText), 1500);
+});
+
 cancelUploadBtn.addEventListener('click', () => {
   if (currentUploadXhr) currentUploadXhr.abort();
 });
@@ -355,17 +469,29 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (currentUser) {
     authScreen.classList.add('hidden');
     dashboardScreen.classList.remove('hidden');
-    const meta = currentUser.user_metadata || {};
-    userAvatar.src = meta.avatar_url || '';
-    userName.textContent = meta.full_name || meta.name || 'مستخدم';
     userEmail.textContent = currentUser.email || '';
 
-    await supabaseClient.from('profiles').upsert({
-      id: currentUser.id,
-      display_name: meta.full_name || meta.name || 'مستخدم',
-      avatar_url: meta.avatar_url || null,
-      updated_at: new Date().toISOString()
-    });
+    const meta = currentUser.user_metadata || {};
+    let { data: existingProfile } = await supabaseClient
+      .from('profiles').select('*').eq('id', currentUser.id).single();
+
+    if (!existingProfile) {
+      const defaults = {
+        id: currentUser.id,
+        display_name: meta.full_name || meta.name || 'مستخدم',
+        avatar_url: meta.avatar_url || null,
+        bio: '',
+        updated_at: new Date().toISOString()
+      };
+      await supabaseClient.from('profiles').upsert(defaults);
+      existingProfile = defaults;
+    }
+
+    userAvatar.src = existingProfile.avatar_url || '';
+    userName.textContent = existingProfile.display_name || 'مستخدم';
+    profileAvatarPreview.src = existingProfile.avatar_url || '';
+    displayNameInput.value = existingProfile.display_name || '';
+    bioInputField.value = existingProfile.bio || '';
 
     loadFiles();
   } else {

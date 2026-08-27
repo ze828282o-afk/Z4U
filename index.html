@@ -226,6 +226,37 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
 }
 .save-profile-btn:hover{ transform: translateY(-1px); }
 
+.social-section{
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:12px;
+  padding:14px; margin-bottom:18px;
+}
+.social-tabs{ display:flex; gap:6px; margin-bottom:12px; }
+.social-tab{
+  flex:1; font-family: var(--mono); font-size:11.5px; color: var(--muted);
+  background: transparent; border:1px solid var(--glass-line); border-radius:8px;
+  padding:8px 10px; cursor:pointer; transition: all .2s ease;
+}
+.social-tab.active{ color: var(--accent); border-color: var(--accent-dim); background: var(--accent-soft); }
+
+.social-pane{ display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; }
+.social-item{
+  display:flex; align-items:center; gap:10px;
+  background: rgba(255,255,255,0.03); border:1px solid var(--glass-line); border-radius:10px;
+  padding:10px 12px; text-decoration:none; color: var(--text);
+}
+.social-avatar{ width:34px; height:34px; border-radius:50%; object-fit:cover; background: var(--accent-soft); border:1px solid var(--accent-dim); flex-shrink:0; }
+.social-info{ flex:1; min-width:0; }
+.social-name{ font-size:13px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.social-handle{ font-family: var(--mono); font-size:10.5px; color: var(--accent-dim); }
+.social-sub{ font-family: var(--mono); font-size:10px; color: var(--muted); }
+.followback-btn{
+  flex-shrink:0; font-family: var(--mono); font-size:10.5px; color:#0a0e0c;
+  background: var(--accent); border:none; border-radius:7px;
+  padding:6px 10px; cursor:pointer; transition: opacity .2s ease;
+}
+.followback-btn.done{ background: transparent; color: var(--muted); border:1px solid var(--glass-line); cursor:default; }
+.empty-social{ text-align:center; font-family: var(--mono); font-size:11.5px; color: var(--muted); padding:14px 0; }
+
 .dropzone{
   border:1.5px dashed var(--glass-line);
   border-radius:14px;
@@ -377,6 +408,23 @@ h1.title .glow{ color: var(--accent); text-shadow:0 0 22px rgba(57,255,176,0.45)
       <button id="saveProfileBtn" class="save-profile-btn">حفظ البروفايل</button>
     </div>
 
+    <div class="social-section">
+      <div class="social-tabs">
+        <button id="tabVisitors" class="social-tab active">👁 زوارك</button>
+        <button id="tabFollowers" class="social-tab">👥 متابعينك</button>
+      </div>
+
+      <div id="visitorsPane" class="social-pane">
+        <div id="visitorsList"></div>
+        <p id="emptyVisitors" class="empty-social hidden">محدش زارك لسه</p>
+      </div>
+
+      <div id="followersPane" class="social-pane hidden">
+        <div id="followersList"></div>
+        <p id="emptyFollowers" class="empty-social hidden">مفيش حد بيتابعك لسه</p>
+      </div>
+    </div>
+
     <div id="dropzone" class="dropzone">
       <input type="file" id="fileInput" hidden>
       <div class="dropzone-inner">
@@ -443,6 +491,10 @@ const saveProfileBtn = document.getElementById('saveProfileBtn');
 const usernameInput = document.getElementById('usernameInput');
 const usernameHint = document.getElementById('usernameHint');
 const userSearchInput = document.getElementById('userSearchInput');
+const tabVisitors = document.getElementById('tabVisitors');
+const tabFollowers = document.getElementById('tabFollowers');
+const visitorsPane = document.getElementById('visitorsPane');
+const followersPane = document.getElementById('followersPane');
 const userSearchResults = document.getElementById('userSearchResults');
 
 const searchInput = document.getElementById('searchInput');
@@ -570,6 +622,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     usernameInput.value = existingProfile.username || '';
 
     loadFiles();
+    loadVisitors();
+    loadFollowers();
   } else {
     authScreen.classList.remove('hidden');
     dashboardScreen.classList.add('hidden');
@@ -801,6 +855,119 @@ document.addEventListener('click', (e) => {
     userSearchResults.classList.add('hidden');
   }
 });
+
+// ---------- التابات ----------
+tabVisitors.addEventListener('click', () => {
+  tabVisitors.classList.add('active');
+  tabFollowers.classList.remove('active');
+  visitorsPane.classList.remove('hidden');
+  followersPane.classList.add('hidden');
+});
+tabFollowers.addEventListener('click', () => {
+  tabFollowers.classList.add('active');
+  tabVisitors.classList.remove('active');
+  followersPane.classList.remove('hidden');
+  visitorsPane.classList.add('hidden');
+});
+
+function escapeHtmlSocial(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+// ---------- زوارك ----------
+async function loadVisitors(){
+  const { data: visits } = await supabaseClient
+    .from('profile_visits')
+    .select('visited_at, visitor:visitor_id(display_name, avatar_url, username)')
+    .eq('profile_id', currentUser.id)
+    .not('visitor_id', 'is', null)
+    .order('visited_at', { ascending: false })
+    .limit(30);
+
+  const list = document.getElementById('visitorsList');
+  const empty = document.getElementById('emptyVisitors');
+  list.innerHTML = '';
+
+  const uniqueVisitors = [];
+  const seen = new Set();
+  (visits || []).forEach(v => {
+    if (v.visitor && !seen.has(v.visitor.username)) {
+      seen.add(v.visitor.username);
+      uniqueVisitors.push(v);
+    }
+  });
+
+  if (uniqueVisitors.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  uniqueVisitors.forEach(v => {
+    const a = document.createElement('a');
+    a.href = v.visitor.username ? 'profile.html?username=' + encodeURIComponent(v.visitor.username) : '#';
+    a.className = 'social-item';
+    const timeAgo = new Date(v.visited_at).toLocaleDateString('ar-EG');
+    a.innerHTML = `
+      <img class="social-avatar" src="${v.visitor.avatar_url || ''}" alt="">
+      <div class="social-info">
+        <div class="social-name">${escapeHtmlSocial(v.visitor.display_name || 'مستخدم')}</div>
+        ${v.visitor.username ? `<div class="social-handle">@${escapeHtmlSocial(v.visitor.username)}</div>` : ''}
+      </div>
+      <div class="social-sub">${timeAgo}</div>
+    `;
+    list.appendChild(a);
+  });
+}
+
+// ---------- متابعينك ----------
+async function loadFollowers(){
+  const { data: followers } = await supabaseClient
+    .from('follows')
+    .select('follower_id, created_at, follower:follower_id(display_name, avatar_url, username)')
+    .eq('following_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  const { data: myFollowing } = await supabaseClient
+    .from('follows').select('following_id').eq('follower_id', currentUser.id);
+  const followingSet = new Set((myFollowing || []).map(f => f.following_id));
+
+  const list = document.getElementById('followersList');
+  const empty = document.getElementById('emptyFollowers');
+  list.innerHTML = '';
+
+  if (!followers || followers.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  followers.forEach(f => {
+    if (!f.follower) return;
+    const alreadyFollowing = followingSet.has(f.follower_id);
+
+    const item = document.createElement('div');
+    item.className = 'social-item';
+    item.innerHTML = `
+      <img class="social-avatar" src="${f.follower.avatar_url || ''}" alt="">
+      <div class="social-info">
+        <div class="social-name">${escapeHtmlSocial(f.follower.display_name || 'مستخدم')}</div>
+        ${f.follower.username ? `<div class="social-handle">@${escapeHtmlSocial(f.follower.username)}</div>` : ''}
+      </div>
+      <button class="followback-btn ${alreadyFollowing ? 'done' : ''}" ${alreadyFollowing ? 'disabled' : ''}>
+        ${alreadyFollowing ? '✓ متابَع' : 'تابعه'}
+      </button>
+    `;
+
+    const btn = item.querySelector('.followback-btn');
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      await supabaseClient.from('follows').insert({ follower_id: currentUser.id, following_id: f.follower_id });
+      btn.textContent = '✓ متابَع';
+      btn.classList.add('done');
+    });
+
+    list.appendChild(item);
+  });
+}
 
 (function initRain(){
   const canvas = document.getElementById('rain');

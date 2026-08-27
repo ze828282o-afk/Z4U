@@ -421,6 +421,7 @@ saveProfileBtn.addEventListener('click', async () => {
   saveProfileBtn.disabled = true;
 
   let avatarUrl = profileAvatarPreview.src.startsWith('blob:') ? null : profileAvatarPreview.src;
+  let avatarFailed = false;
 
   if (pendingAvatarFile) {
     const ext = pendingAvatarFile.name.split('.').pop() || 'jpg';
@@ -430,15 +431,12 @@ saveProfileBtn.addEventListener('click', async () => {
       .upload(path, pendingAvatarFile, { upsert: true });
 
     if (upErr) {
-      alert('فشل رفع الصورة: ' + upErr.message);
-      saveProfileBtn.textContent = oldText;
-      saveProfileBtn.disabled = false;
-      return;
+      avatarFailed = true;
+    } else {
+      const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+      avatarUrl = urlData.publicUrl + '?t=' + Date.now();
+      pendingAvatarFile = null;
     }
-
-    const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
-    avatarUrl = urlData.publicUrl + '?t=' + Date.now();
-    pendingAvatarFile = null;
   }
 
   const { error } = await supabaseClient.from('profiles').upsert({
@@ -449,15 +447,19 @@ saveProfileBtn.addEventListener('click', async () => {
   });
 
   if (error) {
-    alert('حصل خطأ وقت الحفظ: ' + error.message);
+    alert('حصل خطأ وقت حفظ البيانات: ' + error.message);
   } else {
-    userAvatar.src = avatarUrl || '';
     userName.textContent = displayNameInput.value.trim() || 'مستخدم';
+    if (!avatarFailed) userAvatar.src = avatarUrl || '';
+
+    if (avatarFailed) {
+      alert('اتحفظ الاسم والنبذة تمام، بس الصورة فشلت — تأكد إن bucket اسمه avatars موجود وPublic في Supabase Storage، وجرب تاني.');
+    }
   }
 
-  saveProfileBtn.textContent = 'اتحفظ ✓';
+  saveProfileBtn.textContent = avatarFailed ? oldText : 'اتحفظ ✓';
   saveProfileBtn.disabled = false;
-  setTimeout(() => (saveProfileBtn.textContent = oldText), 1500);
+  if (!avatarFailed) setTimeout(() => (saveProfileBtn.textContent = oldText), 1500);
 });
 
 cancelUploadBtn.addEventListener('click', () => {

@@ -112,7 +112,8 @@ header.hero{ text-align:center; margin-bottom:30px; }
 .visitor-avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; background: var(--accent-soft); border:1px solid var(--accent-dim); flex-shrink:0; }
 .visitor-info{ flex:1; min-width:0; }
 .visitor-name{ font-size:13px; font-weight:500; }
-.visitor-time{ font-family: var(--mono); font-size:10px; color: var(--muted); }
+.visitor-handle{ font-family: var(--mono); font-size:10.5px; color: var(--accent-dim); margin-top:1px; }
+.visitor-time{ font-family: var(--mono); font-size:10px; color: var(--muted); margin-top:2px; }
 
 .section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:28px 0 10px; display:flex; justify-content:space-between; }
 
@@ -163,12 +164,6 @@ header.hero{ text-align:center; margin-bottom:30px; }
 
       <button id="followBtn" class="follow-btn hidden">+ متابعة</button>
     </header>
-
-    <div id="visitorsSection" class="hidden">
-      <div class="section-label"><span>آخر زوارك</span></div>
-      <div id="visitorsList"></div>
-      <p id="emptyVisitors" class="empty-files hidden">محدش زارك لسه</p>
-    </div>
 
     <div class="section-label"><span>كل ملفاته</span><span id="fileCount"></span></div>
     <div id="fileList"></div>
@@ -276,50 +271,6 @@ async function init(){
       updateFollowBtn();
       followBtn.disabled = false;
     });
-  }
-
-  // ---------- قائمة الزوار (لصاحب البروفايل بس) ----------
-  if (isOwner) {
-    const visitorsSection = document.getElementById('visitorsSection');
-    visitorsSection.classList.remove('hidden');
-
-    const { data: visits } = await supabaseClient
-      .from('profile_visits')
-      .select('visited_at, visitor:visitor_id(display_name, avatar_url, username)')
-      .eq('profile_id', ownerUid)
-      .not('visitor_id', 'is', null)
-      .order('visited_at', { ascending: false })
-      .limit(20);
-
-    const visitorsList = document.getElementById('visitorsList');
-    const emptyVisitors = document.getElementById('emptyVisitors');
-    const uniqueVisitors = [];
-    const seen = new Set();
-    (visits || []).forEach(v => {
-      if (v.visitor && !seen.has(v.visitor.username)) {
-        seen.add(v.visitor.username);
-        uniqueVisitors.push(v);
-      }
-    });
-
-    if (uniqueVisitors.length === 0) {
-      emptyVisitors.classList.remove('hidden');
-    } else {
-      uniqueVisitors.forEach(v => {
-        const a = document.createElement('a');
-        a.href = v.visitor.username ? 'profile.html?username=' + encodeURIComponent(v.visitor.username) : '#';
-        a.className = 'visitor-item';
-        const timeAgo = new Date(v.visited_at).toLocaleDateString('ar-EG');
-        a.innerHTML = `
-          <img class="visitor-avatar" src="${v.visitor.avatar_url || ''}" alt="">
-          <div class="visitor-info">
-            <div class="visitor-name">${escapeHtml(v.visitor.display_name || 'مستخدم')}</div>
-            <div class="visitor-time">${timeAgo}</div>
-          </div>
-        `;
-        visitorsList.appendChild(a);
-      });
-    }
   }
 
   const { data: files } = await supabaseClient

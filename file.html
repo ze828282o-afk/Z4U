@@ -216,13 +216,15 @@ async function init(){
   downloadBtn.addEventListener('click', () => {
     if (downloadCounted) return;
     downloadCounted = true;
-    supabaseClient.rpc('increment_download_count', { file_id: currentFileId });
+    supabaseClient.rpc('increment_download_count', { file_id: currentFileId })
+      .then(({ error }) => { if (error) console.error('فشل تسجيل التحميل:', error.message); });
     document.getElementById('downloadCount').textContent = (file.download_count || 0) + 1;
   });
 
   document.getElementById('viewCount').textContent = (file.view_count || 0) + 1;
   document.getElementById('downloadCount').textContent = file.download_count || 0;
-  supabaseClient.rpc('increment_view_count', { file_id: fileId });
+  supabaseClient.rpc('increment_view_count', { file_id: fileId })
+    .then(({ error }) => { if (error) console.error('فشل تسجيل الزيارة:', error.message); });
 
   const { data: profile } = await supabaseClient
     .from('profiles').select('*').eq('id', file.user_id).single();

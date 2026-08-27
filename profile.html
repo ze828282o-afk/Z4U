@@ -158,12 +158,16 @@ function escapeHtml(str){ const d=document.createElement('div'); d.textContent=s
 async function init(){
   const params = new URLSearchParams(window.location.search);
   const uid = params.get('uid');
-  if (!uid) { showError(); return; }
+  const username = params.get('username');
+  if (!uid && !username) { showError(); return; }
 
-  const { data: profile, error: profileErr } = await supabaseClient
-    .from('profiles').select('*').eq('id', uid).single();
+  let query = supabaseClient.from('profiles').select('*');
+  query = uid ? query.eq('id', uid) : query.eq('username', username.toLowerCase());
+  const { data: profile, error: profileErr } = await query.single();
 
   if (profileErr || !profile) { showError(); return; }
+
+  const ownerUid = profile.id;
 
   document.getElementById('pname').textContent = profile.display_name || 'مستخدم';
 
@@ -183,7 +187,7 @@ async function init(){
   }
 
   const { data: files } = await supabaseClient
-    .from('files').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+    .from('files').select('*').eq('user_id', ownerUid).order('created_at', { ascending: false });
 
   const list = files || [];
   document.getElementById('fileCount').textContent = list.length + ' ملف';
@@ -221,6 +225,7 @@ function showError(){
 
 init();
 
+// ---------- مطر الماتريكس ----------
 (function initRain(){
   const canvas = document.getElementById('rain');
   if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

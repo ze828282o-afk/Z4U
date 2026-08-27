@@ -88,6 +88,32 @@ header.hero{ text-align:center; margin-bottom:30px; }
 }
 .bio-card.empty{ color: var(--muted); font-family: var(--mono); font-size:12px; }
 
+.stats-row{
+  display:flex; justify-content:center; gap:18px; margin-top:14px;
+  font-family: var(--mono); font-size:11.5px; color: var(--muted);
+}
+.stats-row span{ display:inline-flex; align-items:center; gap:5px; }
+
+.follow-btn{
+  margin-top:14px; font-family: var(--arabic); font-weight:600; font-size:13.5px;
+  color:#0a0e0c; background: var(--accent); border:none; border-radius:999px;
+  padding:9px 24px; cursor:pointer; transition: transform .15s ease, opacity .15s ease;
+}
+.follow-btn:hover{ transform: translateY(-1px); }
+.follow-btn.following{
+  background: transparent; color: var(--text); border:1px solid var(--glass-line);
+}
+
+.visitor-item{
+  display:flex; align-items:center; gap:10px;
+  background: var(--glass); border:1px solid var(--glass-line); border-radius:10px;
+  padding:10px 14px; margin-bottom:8px; text-decoration:none; color: var(--text);
+}
+.visitor-avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; background: var(--accent-soft); border:1px solid var(--accent-dim); flex-shrink:0; }
+.visitor-info{ flex:1; min-width:0; }
+.visitor-name{ font-size:13px; font-weight:500; }
+.visitor-time{ font-family: var(--mono); font-size:10px; color: var(--muted); }
+
 .section-label{ font-family: var(--mono); font-size:11px; letter-spacing:0.1em; color: var(--accent-dim); text-transform:uppercase; margin:28px 0 10px; display:flex; justify-content:space-between; }
 
 .file-item{
@@ -129,7 +155,20 @@ header.hero{ text-align:center; margin-bottom:30px; }
       </div>
       <div id="pname" class="pname"></div>
       <div id="bioCard" class="bio-card"></div>
+
+      <div class="stats-row">
+        <span>👥 <span id="followerCount">0</span> متابع</span>
+        <span>👁 <span id="profileViewCount">0</span> زيارة</span>
+      </div>
+
+      <button id="followBtn" class="follow-btn hidden">+ متابعة</button>
     </header>
+
+    <div id="visitorsSection" class="hidden">
+      <div class="section-label"><span>آخر زوارك</span></div>
+      <div id="visitorsList"></div>
+      <p id="emptyVisitors" class="empty-files hidden">محدش زارك لسه</p>
+    </div>
 
     <div class="section-label"><span>كل ملفاته</span><span id="fileCount"></span></div>
     <div id="fileList"></div>
@@ -184,6 +223,103 @@ async function init(){
   } else {
     bioCard.textContent = 'مفيش نبذة لسه';
     bioCard.classList.add('empty');
+  }
+
+  // ---------- الزائر الحالي ----------
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const viewer = session ? session.user : null;
+  const isOwner = viewer && viewer.id === ownerUid;
+
+  // ---------- تسجيل الزيارة (لو مش صاحب البروفايل) ----------
+  if (!isOwner) {
+    supabaseClient.rpc('increment_profile_view', { pid: ownerUid })
+      .then(({ error }) => { if (error) console.error('فشل تسجيل الزيارة:', error.message); });
+    supabaseClient.from('profile_visits')
+      .insert({ profile_id: ownerUid, visitor_id: viewer ? viewer.id : null })
+      .then(({ error }) => { if (error) console.error('فشل حفظ الزائر:', error.message); });
+  }
+
+  document.getElementById('profileViewCount').textContent =
+    (profile.profile_view_count || 0) + (isOwner ? 0 : 1);
+
+  // ---------- عدد المتابعين ----------
+  const { count: followerCount } = await supabaseClient
+    .from('follows').select('*', { count: 'exact', head: true }).eq('following_id', ownerUid);
+  document.getElementById('followerCount').textContent = followerCount || 0;
+
+  // ---------- زرار المتابعة (لو زائر مسجل دخول ومش صاحب البروفايل) ----------
+  const followBtn = document.getElementById('followBtn');
+  if (viewer && !isOwner) {
+    followBtn.classList.remove('hidden');
+    const { data: existingFollow } = await supabaseClient
+      .from('follows').select('*').eq('follower_id', viewer.id).eq('following_id', ownerUid).maybeSingle();
+
+    let isFollowing = !!existingFollow;
+    updateFollowBtn();
+
+    function updateFollowBtn(){
+      followBtn.textContent = isFollowing ? '✓ متابَع' : '+ متابعة';
+      followBtn.classList.toggle('following', isFollowing);
+    }
+
+    followBtn.addEventListener('click', async () => {
+      followBtn.disabled = true;
+      if (isFollowing) {
+        await supabaseClient.from('follows').delete().eq('follower_id', viewer.id).eq('following_id', ownerUid);
+        isFollowing = false;
+        document.getElementById('followerCount').textContent = Math.max(0, (parseInt(document.getElementById('followerCount').textContent) || 1) - 1);
+      } else {
+        await supabaseClient.from('follows').insert({ follower_id: viewer.id, following_id: ownerUid });
+        isFollowing = true;
+        document.getElementById('followerCount').textContent = (parseInt(document.getElementById('followerCount').textContent) || 0) + 1;
+      }
+      updateFollowBtn();
+      followBtn.disabled = false;
+    });
+  }
+
+  // ---------- قائمة الزوار (لصاحب البروفايل بس) ----------
+  if (isOwner) {
+    const visitorsSection = document.getElementById('visitorsSection');
+    visitorsSection.classList.remove('hidden');
+
+    const { data: visits } = await supabaseClient
+      .from('profile_visits')
+      .select('visited_at, visitor:visitor_id(display_name, avatar_url, username)')
+      .eq('profile_id', ownerUid)
+      .not('visitor_id', 'is', null)
+      .order('visited_at', { ascending: false })
+      .limit(20);
+
+    const visitorsList = document.getElementById('visitorsList');
+    const emptyVisitors = document.getElementById('emptyVisitors');
+    const uniqueVisitors = [];
+    const seen = new Set();
+    (visits || []).forEach(v => {
+      if (v.visitor && !seen.has(v.visitor.username)) {
+        seen.add(v.visitor.username);
+        uniqueVisitors.push(v);
+      }
+    });
+
+    if (uniqueVisitors.length === 0) {
+      emptyVisitors.classList.remove('hidden');
+    } else {
+      uniqueVisitors.forEach(v => {
+        const a = document.createElement('a');
+        a.href = v.visitor.username ? 'profile.html?username=' + encodeURIComponent(v.visitor.username) : '#';
+        a.className = 'visitor-item';
+        const timeAgo = new Date(v.visited_at).toLocaleDateString('ar-EG');
+        a.innerHTML = `
+          <img class="visitor-avatar" src="${v.visitor.avatar_url || ''}" alt="">
+          <div class="visitor-info">
+            <div class="visitor-name">${escapeHtml(v.visitor.display_name || 'مستخدم')}</div>
+            <div class="visitor-time">${timeAgo}</div>
+          </div>
+        `;
+        visitorsList.appendChild(a);
+      });
+    }
   }
 
   const { data: files } = await supabaseClient
